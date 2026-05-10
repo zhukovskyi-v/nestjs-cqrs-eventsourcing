@@ -1,0 +1,1 @@
+export const EVENTSTORE_CLIENT = Symbol('EVENTSTORE_CLIENT');
