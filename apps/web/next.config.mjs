@@ -6,6 +6,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  async rewrites() {
+    return [
+      {
+        source: "/api/auth/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"}/api/auth/:path*`,
+      },
+    ];
+  },
+};
 
-export default nextConfig
+export default nextConfig;

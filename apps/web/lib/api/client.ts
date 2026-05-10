@@ -3,18 +3,10 @@
  * These wrap the server actions for use with TanStack Query
  */
 
-import type { Folder, FileRecord, Permission } from '@/lib/types'
+import type { FileRecord, Permission } from '@/lib/types'
 import {
-  getFolders as serverGetFolders,
   getFiles as serverGetFiles,
-  getFolderPath as serverGetFolderPath,
-  searchFolders as serverSearchFolders,
   searchFiles as serverSearchFiles,
-  createFolder as serverCreateFolder,
-  updateFolder as serverUpdateFolder,
-  deleteFolder as serverDeleteFolder,
-  cloneFolder as serverCloneFolder,
-  reorderFolders as serverReorderFolders,
   createFileRecord as serverCreateFileRecord,
   updateFile as serverUpdateFile,
   deleteFile as serverDeleteFile,
@@ -25,42 +17,6 @@ import {
   updatePermission as serverUpdatePermission,
   removePermission as serverRemovePermission,
 } from '@/lib/actions'
-
-// ─── Folders ──────────────────────────────────────────────────────────────────
-
-export const foldersApi = {
-  getAll: async (parentId: string | null): Promise<Folder[]> => {
-    return serverGetFolders(parentId)
-  },
-
-  search: async (query: string, parentId: string | null): Promise<Folder[]> => {
-    return serverSearchFolders(query, parentId)
-  },
-
-  getPath: async (folderId: string): Promise<Array<{ id: string; name: string }>> => {
-    return serverGetFolderPath(folderId)
-  },
-
-  create: async (params: { name: string; parentId: string | null }): Promise<void> => {
-    return serverCreateFolder(params.name, params.parentId)
-  },
-
-  update: async (params: { id: string; name: string }): Promise<void> => {
-    return serverUpdateFolder(params.id, params.name)
-  },
-
-  delete: async (id: string): Promise<void> => {
-    return serverDeleteFolder(id)
-  },
-
-  clone: async (id: string): Promise<void> => {
-    return serverCloneFolder(id)
-  },
-
-  reorder: async (updates: Array<{ id: string; sort_order: number }>): Promise<void> => {
-    return serverReorderFolders(updates)
-  },
-}
 
 // ─── Files ────────────────────────────────────────────────────────────────────
 

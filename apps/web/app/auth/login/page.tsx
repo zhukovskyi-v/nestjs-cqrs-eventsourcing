@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { authClient } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { FolderOpen, UserRound } from "lucide-react";
 
@@ -12,24 +12,18 @@ export default function LoginPage() {
   const [anonError, setAnonError] = useState<string | null>(null);
 
   async function handleGoogleSignIn() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    await authClient.signIn.social({
       provider: "google",
-      options: {
-        redirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-          `${window.location.origin}/auth/callback`,
-      },
+      callbackURL: "/browse",
     });
   }
 
   async function handleAnonymousSignIn() {
     setAnonLoading(true);
     setAnonError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInAnonymously();
+    const { error } = await authClient.signIn.anonymous();
     if (error) {
-      setAnonError(error.message);
+      setAnonError(error.message ?? "Failed to sign in");
       setAnonLoading(false);
       return;
     }

@@ -1,26 +1,18 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { FileBrowser } from "@/components/file-manager/file-browser";
-import { FolderOpen, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/actions";
+import { FolderOpen } from "lucide-react";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { getServerSession } from "@/lib/auth/server";
 
 export default async function BrowsePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const session = await getServerSession();
+  if (!session) {
     return redirect("/auth/login");
   }
 
-  const isAnonymous = user.is_anonymous ?? false;
+  const { user } = session;
+  const isAnonymous = user.isAnonymous ?? false;
   const userEmail = user.email ?? "";
-
-  const handleSignOut = async () => {
-    "use server";
-    await signOut();
-  };
 
   return (
     <>
@@ -42,16 +34,9 @@ export default async function BrowsePage() {
                 {userEmail}
               </span>
             )}
-            <form action={handleSignOut}>
-              <Button
-                type="submit"
-                variant="ghost"
-                size="icon"
-                aria-label={isAnonymous ? "Exit guest session" : "Sign out"}
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </form>
+            <SignOutButton
+              ariaLabel={isAnonymous ? "Exit guest session" : "Sign out"}
+            />
           </div>
         </div>
       </header>

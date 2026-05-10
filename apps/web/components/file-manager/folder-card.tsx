@@ -40,7 +40,7 @@ export function FolderCard({
   const deleteMutation = useDeleteFolder();
   const cloneMutation = useCloneFolder();
   const isPending = deleteMutation.isPending || cloneMutation.isPending;
-  const isOwner = folder.owner_id === currentUserId;
+  const isOwner = folder.ownerId === currentUserId;
   const showConfirmDialog = useFileBrowserStore(
     (state) => state.showConfirmDialog,
   );
@@ -67,13 +67,13 @@ export function FolderCard({
       confirmText: "Delete",
       variant: "destructive",
       onConfirm: () => {
-        deleteMutation.mutate(folder.id);
+        deleteMutation.mutate({ id: folder.id });
       },
     });
   }
 
   function handleClone() {
-    cloneMutation.mutate(folder.id);
+    cloneMutation.mutate({ id: folder.id });
   }
 
   return (

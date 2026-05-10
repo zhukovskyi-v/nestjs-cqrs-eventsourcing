@@ -16,6 +16,7 @@ export const SearchBar: FC<SearchBarProps> = ({
   onSearchChange,
 }) => {
   const { openCreateFolder, openUploadDialog } = useFileBrowserStore();
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="flex flex-1 gap-2 min-w-0">

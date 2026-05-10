@@ -1,11 +1,8 @@
-export type Folder = {
-  id: string
-  name: string
-  parent_id: string | null
-  owner_id: string
-  sort_order: number
-  created_at: string
-  updated_at: string
+import type { Folder as ContractFolder } from '@repo/contracts'
+
+export type Folder = Omit<ContractFolder, 'createdAt' | 'updatedAt'> & {
+  createdAt: string
+  updatedAt: string
 }
 
 export type FileRecord = {

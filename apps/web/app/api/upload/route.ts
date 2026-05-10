@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary'
 import { type NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getServerSession } from '@/lib/auth/server'
 import { ALLOWED_IMAGE_TYPES } from '@/lib/types'
 
 // Configure Cloudinary
@@ -11,11 +11,11 @@ cloudinary.config({
 })
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
+  const session = await getServerSession()
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const user = session.user
 
   try {
     const formData = await request.formData()
