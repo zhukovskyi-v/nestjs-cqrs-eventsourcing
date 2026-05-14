@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
-import { useUpdateFile } from '@/lib/hooks/use-files'
+import { useRenameFile, useChangeFileVisibility } from '@/lib/hooks/use-files'
 import type { FileRecord } from '@/lib/types'
 
 interface EditFileDialogProps {
@@ -26,28 +26,41 @@ export function EditFileDialog({ open, onOpenChange, file }: EditFileDialogProps
   const [name, setName] = useState('')
   const [isPublic, setIsPublic] = useState(false)
 
-  const updateMutation = useUpdateFile()
-  const isPending = updateMutation.isPending
+  const renameMutation = useRenameFile()
+  const visibilityMutation = useChangeFileVisibility()
+  const isPending = renameMutation.isPending || visibilityMutation.isPending
 
   useEffect(() => {
     if (open && file) {
       setName(file.name)
-      setIsPublic(file.is_public)
+      setIsPublic(file.isPublic)
     }
   }, [open, file])
 
-  function handleSave() {
+  async function handleSave() {
     const trimmed = name.trim()
     if (!trimmed || !file) return
 
-    updateMutation.mutate(
-      { id: file.id, updates: { name: trimmed, is_public: isPublic } },
-      {
-        onSuccess: () => {
-          onOpenChange(false)
-        },
-      }
-    )
+    const tasks: Promise<unknown>[] = []
+    if (trimmed !== file.name) {
+      tasks.push(renameMutation.mutateAsync({ id: file.id, name: trimmed }))
+    }
+    if (isPublic !== file.isPublic) {
+      tasks.push(
+        visibilityMutation.mutateAsync({ id: file.id, isPublic }),
+      )
+    }
+    if (tasks.length === 0) {
+      onOpenChange(false)
+      return
+    }
+
+    try {
+      await Promise.all(tasks)
+      onOpenChange(false)
+    } catch {
+      // toast handled by hook
+    }
   }
 
   return (

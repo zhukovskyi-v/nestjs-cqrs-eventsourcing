@@ -5,7 +5,11 @@ export class FolderDeletedEvent extends DomainEvent {
     return 'FolderDeleted';
   }
 
-  constructor(aggregateId: string) {
+  constructor(
+    aggregateId: string,
+    public readonly ownerId: string,
+    public readonly parentFolderId: string | null,
+  ) {
     super(aggregateId);
   }
 }

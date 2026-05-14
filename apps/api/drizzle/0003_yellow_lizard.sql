@@ -1,0 +1,1 @@
+ALTER TABLE "files" ADD COLUMN "assetId" uuid NOT NULL;

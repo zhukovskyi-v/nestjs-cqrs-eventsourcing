@@ -1,23 +1,16 @@
-import type { Folder as ContractFolder } from '@repo/contracts'
+import type {
+  Folder as ContractFolder,
+  File as ContractFile,
+} from '@repo/contracts'
 
 export type Folder = Omit<ContractFolder, 'createdAt' | 'updatedAt'> & {
   createdAt: string
   updatedAt: string
 }
 
-export type FileRecord = {
-  id: string
-  name: string
-  folder_id: string | null
-  owner_id: string
-  blob_url: string
-  blob_pathname: string
-  is_public: boolean
-  size: number | null
-  content_type: string | null
-  sort_order: number
-  created_at: string
-  updated_at: string
+export type FileRecord = Omit<ContractFile, 'createdAt' | 'updatedAt'> & {
+  createdAt: string
+  updatedAt: string
 }
 
 export type Permission = {

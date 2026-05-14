@@ -3,7 +3,7 @@ import { FolderCreatedEvent } from './events/folder-created.event';
 import { FolderRenamedEvent } from './events/folder-renamed.event';
 import { FolderMovedEvent } from './events/folder-moved.event';
 import { FolderDeletedEvent } from './events/folder-deleted.event';
-import { FolderSortOrderChangedEvent } from './events/folder-sort-order-changed.event';
+import { FolderSortOrderChangedEvent } from '@/modules/folder/domain/events';
 import { FolderClonedEvent } from './events/folder-cloned.event';
 
 export class FolderAggregate extends AggregateRootBase {
@@ -97,7 +97,13 @@ export class FolderAggregate extends AggregateRootBase {
 
   delete(): void {
     this.ensureNotDeleted();
-    this.apply(new FolderDeletedEvent(this.id));
+    this.apply(
+      new FolderDeletedEvent(
+        this.id,
+        this.getOwnerId(),
+        this.getParentFolderId(),
+      ),
+    );
   }
 
   /* ---- Event handlers (state mutations) ---- */
@@ -134,7 +140,7 @@ export class FolderAggregate extends AggregateRootBase {
     this.sortOrder = event.sortOrder;
   }
 
-  private onFolderDeletedEvent(_event: FolderDeletedEvent): void {
+  private onFolderDeletedEvent(event: FolderDeletedEvent): void {
     this.isDeleted = true;
   }
 

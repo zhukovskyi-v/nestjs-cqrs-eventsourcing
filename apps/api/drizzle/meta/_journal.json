@@ -15,6 +15,20 @@
       "when": 1778406740957,
       "tag": "0001_quick_excalibur",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778410532755,
+      "tag": "0002_cool_lenny_balinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778428702735,
+      "tag": "0003_yellow_lizard",
+      "breakpoints": true
     }
   ]
 }

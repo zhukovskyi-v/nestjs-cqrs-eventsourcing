@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Module, OnModuleInit } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { FolderController } from './interface/folder.controller';
 import { FolderRepository } from './infrastructure/repositories/folder.repository';
@@ -9,9 +9,10 @@ import { QueryHandlers } from './application/queries/handlers';
 import { FolderSaga } from './application/sagas/folder.saga';
 import { EventSerializer } from '@/lib/shared/infrastructure/eventstore/event-serializer';
 import { registerFolderEvents } from './domain/events';
+import { FileModule } from '@/modules/file/file.module';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, forwardRef(() => FileModule)],
   controllers: [FolderController],
   providers: [
     FolderRepository,
@@ -21,6 +22,7 @@ import { registerFolderEvents } from './domain/events';
     ...QueryHandlers,
     FolderSaga,
   ],
+  exports: [FolderReadRepository, FolderRepository],
 })
 export class FolderModule implements OnModuleInit {
   constructor(private readonly eventSerializer: EventSerializer) {}

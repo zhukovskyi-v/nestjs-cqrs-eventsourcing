@@ -33,7 +33,7 @@ export function FileCard({ file, currentUserId, onPermissions, onEdit }: FileCar
   const deleteMutation = useDeleteFile()
   const cloneMutation = useCloneFile()
   const isPending = deleteMutation.isPending || cloneMutation.isPending
-  const isOwner = file.owner_id === currentUserId
+  const isOwner = file.ownerId === currentUserId
   const showConfirmDialog = useFileBrowserStore((state) => state.showConfirmDialog)
 
   const {
@@ -58,13 +58,13 @@ export function FileCard({ file, currentUserId, onPermissions, onEdit }: FileCar
       confirmText: "Delete",
       variant: "destructive",
       onConfirm: () => {
-        deleteMutation.mutate(file.id)
+        deleteMutation.mutate({ id: file.id })
       },
     })
   }
 
   function handleClone() {
-    cloneMutation.mutate(file.id)
+    cloneMutation.mutate({ id: file.id })
   }
 
   return (
@@ -86,10 +86,10 @@ export function FileCard({ file, currentUserId, onPermissions, onEdit }: FileCar
 
       {/* Thumbnail or icon */}
       <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
-        {file.content_type?.startsWith('image/') ? (
+        {file.contentType?.startsWith('image/') ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={file.blob_url}
+            src={file.blobUrl}
             alt={file.name}
             className="w-full h-full object-cover"
           />
@@ -104,7 +104,7 @@ export function FileCard({ file, currentUserId, onPermissions, onEdit }: FileCar
           {file.size ? (
             <span className="text-xs text-muted-foreground">{formatSize(file.size)}</span>
           ) : null}
-          {file.is_public ? (
+          {file.isPublic ? (
             <span className="flex items-center gap-0.5 text-xs text-emerald-600">
               <Globe className="w-3 h-3" />
               Public
@@ -131,7 +131,7 @@ export function FileCard({ file, currentUserId, onPermissions, onEdit }: FileCar
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
-            <a href={file.blob_url} target="_blank" rel="noreferrer" download={file.name}>
+            <a href={file.blobUrl} target="_blank" rel="noreferrer" download={file.name}>
               <Download className="w-4 h-4 mr-2" />
               Download
             </a>

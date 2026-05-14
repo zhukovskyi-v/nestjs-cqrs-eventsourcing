@@ -83,7 +83,10 @@ export const BrowserContent: FC<BrowserContentProps> = ({ currentUserId }) => {
 
     setLocalFiles(reordered);
     reorderFilesMutation.mutate(
-      reordered.map((f, i) => ({ id: f.id, sort_order: i })),
+      {
+        folderId: currentFolderId,
+        orderedIds: reordered.map((f) => f.id),
+      },
       {
         onSettled: () => setLocalFiles([]),
       },

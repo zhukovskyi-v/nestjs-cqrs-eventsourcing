@@ -1,19 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { ICommand, ofType, Saga } from '@nestjs/cqrs';
-import { filter, map, Observable } from 'rxjs';
+import { from, mergeMap, Observable } from 'rxjs';
 import { FolderDeletedEvent } from '@/modules/folder/domain/events';
+import { FileReadRepository } from '@/modules/file/infrastructure/projections/file-read.repository';
+import { DeleteFileCommand } from '@/modules/file/application/commands/delete-file.command';
+import { FolderReadRepository } from '../../infrastructure/projections/folder-read.repository';
+import { DeleteFolderCommand } from '@/modules/folder/application/commands/delete-folder.command';
 
 @Injectable()
 export class FolderSaga {
+  constructor(
+    private readonly folderReadRepository: FolderReadRepository,
+    private readonly fileReadRepository: FileReadRepository,
+  ) {}
+
   @Saga()
-  folderDeleted = (events$: Observable<any>): Observable<ICommand> => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return events$.pipe(
+  folderDeleted = (events$: Observable<unknown>): Observable<ICommand> =>
+    events$.pipe(
       ofType(FolderDeletedEvent),
-      // TODO: Emit DeleteAllFilesInFolderCommand when File domain is implemented
-      filter(() => false),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      map(() => undefined as any),
+      mergeMap(async (event: FolderDeletedEvent) => {
+        const ownerId = event.ownerId;
+        const folderId = event.aggregateId;
+        const [children, files] = await Promise.all([
+          this.folderReadRepository.findChildren(ownerId, folderId),
+          this.fileReadRepository.findByFolder(ownerId, folderId),
+        ]);
+
+        const commands: ICommand[] = [
+          ...children.map((c) => new DeleteFolderCommand(c.id, ownerId)),
+          ...files.map((f) => new DeleteFileCommand(f.id, ownerId)),
+        ];
+        return commands;
+      }),
+      mergeMap((command) => from(command)),
     );
-  };
 }

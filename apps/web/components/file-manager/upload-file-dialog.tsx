@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { CloudUpload, X, ImageIcon } from 'lucide-react'
-import { useCreateFile } from '@/lib/hooks/use-files'
+import { useUploadFile } from '@/lib/hooks/use-files'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { ALLOWED_IMAGE_TYPES, ALLOWED_IMAGE_EXTENSIONS, ALLOWED_IMAGE_LABEL } from '@/lib/types'
@@ -35,7 +35,7 @@ export function UploadFileDialog({
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const createFileMutation = useCreateFile()
+  const uploadFileMutation = useUploadFile()
 
   function filterImages(files: File[]): { valid: File[]; rejected: string[] } {
     const valid: File[] = []
@@ -79,22 +79,11 @@ export function UploadFileDialog({
   }
 
   async function uploadFile(file: File): Promise<void> {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('isPublic', String(isPublic))
-
-    const res = await fetch('/api/upload', { method: 'POST', body: formData })
-    if (!res.ok) throw new Error('Upload failed')
-    const data = await res.json()
-
-    await createFileMutation.mutateAsync({
-      name: data.name,
+    await uploadFileMutation.mutateAsync({
+      file,
       folderId,
-      blobUrl: data.url,
-      blobPathname: data.pathname,
       isPublic,
-      size: data.size,
-      contentType: data.contentType,
+      name: file.name,
     })
   }
 
