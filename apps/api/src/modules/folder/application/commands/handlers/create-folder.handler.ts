@@ -28,12 +28,7 @@ export class CreateFolderHandler implements ICommandHandler<
       }
     }
 
-    const sortOrder =
-      (await this.folderReads.getMaxSortOrder(
-        command.ownerId,
-        command.parentFolderId,
-      )) + 1;
-
+    const sortOrder = Date.now();
     const folderId = crypto.randomUUID();
     const folder = FolderAggregate.create(
       folderId,

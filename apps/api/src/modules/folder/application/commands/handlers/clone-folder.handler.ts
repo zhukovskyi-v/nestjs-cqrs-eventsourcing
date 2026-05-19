@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ORPCError } from '@orpc/nest';
 import { CloneFolderCommand } from '../clone-folder.command';
 import { FolderRepository } from '../../../infrastructure/repositories/folder.repository';
-import { FolderReadRepository } from '../../../infrastructure/projections/folder-read.repository';
 import { FolderAggregate } from '../../../domain/folder.aggregate';
 
 @CommandHandler(CloneFolderCommand)
@@ -10,10 +9,7 @@ export class CloneFolderHandler implements ICommandHandler<
   CloneFolderCommand,
   string
 > {
-  constructor(
-    private readonly folderRepository: FolderRepository,
-    private readonly folderReads: FolderReadRepository,
-  ) {}
+  constructor(private readonly folderRepository: FolderRepository) {}
 
   async execute(command: CloneFolderCommand): Promise<string> {
     const source = await this.folderRepository.findById(command.sourceId);
@@ -24,12 +20,7 @@ export class CloneFolderHandler implements ICommandHandler<
       });
     }
 
-    const sortOrder =
-      (await this.folderReads.getMaxSortOrder(
-        command.ownerId,
-        source.getParentFolderId(),
-      )) + 1;
-
+    const sortOrder = source.getSortOrder() + 1;
     const newId = crypto.randomUUID();
     const clone = FolderAggregate.cloneFrom(
       newId,

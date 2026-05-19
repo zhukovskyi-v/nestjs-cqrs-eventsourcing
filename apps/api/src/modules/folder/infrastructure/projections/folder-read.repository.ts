@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, ilike, isNull, max, sql } from 'drizzle-orm';
+import { and, asc, eq, ilike, isNull, sql } from 'drizzle-orm';
 import * as schema from '@/lib/database/folder.schema';
 import { DRIZZLE } from '@/lib/database/database.module';
 import type { Database } from '@/lib/database/database.module';
@@ -22,7 +22,11 @@ export class FolderReadRepository {
           eq(schema.folders.isDeleted, false),
         ),
       )
-      .orderBy(asc(schema.folders.sortOrder), asc(schema.folders.name));
+      .orderBy(
+        asc(schema.folders.sortOrder),
+        asc(schema.folders.createdAt),
+        asc(schema.folders.id),
+      );
   }
 
   async findChildren(
@@ -41,7 +45,11 @@ export class FolderReadRepository {
           eq(schema.folders.isDeleted, false),
         ),
       )
-      .orderBy(asc(schema.folders.sortOrder), asc(schema.folders.name));
+      .orderBy(
+        asc(schema.folders.sortOrder),
+        asc(schema.folders.createdAt),
+        asc(schema.folders.id),
+      );
   }
 
   async findOneOwned(
@@ -60,25 +68,6 @@ export class FolderReadRepository {
       )
       .limit(1);
     return row ?? null;
-  }
-
-  async getMaxSortOrder(
-    ownerId: string,
-    parentFolderId: string | null,
-  ): Promise<number> {
-    const [row] = await this.db
-      .select({ value: max(schema.folders.sortOrder) })
-      .from(schema.folders)
-      .where(
-        and(
-          eq(schema.folders.ownerId, ownerId),
-          parentFolderId === null
-            ? isNull(schema.folders.parentFolderId)
-            : eq(schema.folders.parentFolderId, parentFolderId),
-          eq(schema.folders.isDeleted, false),
-        ),
-      );
-    return row?.value ?? -1;
   }
 
   async search(
@@ -104,7 +93,11 @@ export class FolderReadRepository {
           parentClause,
         ),
       )
-      .orderBy(asc(schema.folders.sortOrder), asc(schema.folders.name));
+      .orderBy(
+        asc(schema.folders.sortOrder),
+        asc(schema.folders.createdAt),
+        asc(schema.folders.id),
+      );
   }
 
   async getPath(

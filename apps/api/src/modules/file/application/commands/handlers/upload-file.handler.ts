@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { ORPCError } from '@orpc/nest';
 import { UploadFileCommand } from '../upload-file.command';
 import { FileRepository } from '../../../infrastructure/repositories/file.repository';
-import { FileReadRepository } from '../../../infrastructure/projections/file-read.repository';
 import { FolderReadRepository } from '@/modules/folder/infrastructure/projections/folder-read.repository';
 import { FileAggregate } from '../../../domain/file.aggregate';
 import { CloudinaryService } from '@/lib/cloudinary/cloudinary.service';
@@ -15,7 +14,6 @@ export class UploadFileHandler implements ICommandHandler<
 > {
   constructor(
     private readonly fileRepository: FileRepository,
-    private readonly fileReads: FileReadRepository,
     private readonly folderReads: FolderReadRepository,
     private readonly cloudinary: CloudinaryService,
     private readonly config: ConfigService,
@@ -40,9 +38,8 @@ export class UploadFileHandler implements ICommandHandler<
       });
     }
 
-    const [buffer, maxSortOrder] = await Promise.all([
+    const [buffer] = await Promise.all([
       command.file.arrayBuffer().then((b) => Buffer.from(b)),
-      this.fileReads.getMaxSortOrder(command.ownerId, command.folderId),
       command.folderId
         ? this.folderReads
             .findOneOwned(command.ownerId, command.folderId)
@@ -75,7 +72,7 @@ export class UploadFileHandler implements ICommandHandler<
       uploaded.size,
       uploaded.contentType,
       command.isPublic,
-      maxSortOrder + 1,
+      Date.now(),
     );
     await this.fileRepository.save(file);
     return fileId;

@@ -3,8 +3,8 @@ import {
   uuid,
   varchar,
   boolean,
+  bigint,
   timestamp,
-  integer,
   index,
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
@@ -16,7 +16,7 @@ export const folders = pgTable(
     name: varchar('name', { length: 255 }).notNull(),
     ownerId: uuid('ownerId').notNull(),
     parentFolderId: uuid('parentFolderId'),
-    sortOrder: integer('sortOrder').notNull().default(0),
+    sortOrder: bigint('sortOrder', { mode: 'number' }).notNull().default(0),
     isDeleted: boolean('isDeleted').notNull().default(false),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, ilike, isNull, max } from 'drizzle-orm';
+import { and, asc, eq, ilike, isNull } from 'drizzle-orm';
 import * as schema from '@/lib/database/file.schema';
 import { DRIZZLE } from '@/lib/database/database.module';
 import type { Database } from '@/lib/database/database.module';
@@ -27,7 +27,11 @@ export class FileReadRepository {
           eq(schema.files.isDeleted, false),
         ),
       )
-      .orderBy(asc(schema.files.sortOrder), asc(schema.files.name));
+      .orderBy(
+        asc(schema.files.sortOrder),
+        asc(schema.files.createdAt),
+        asc(schema.files.id),
+      );
   }
 
   async findOneOwned(ownerId: string, id: string): Promise<schema.File | null> {
@@ -43,26 +47,6 @@ export class FileReadRepository {
       )
       .limit(1);
     return row ?? null;
-  }
-
-  async getMaxSortOrder(
-    ownerId: string,
-    folderId: string | null,
-  ): Promise<number> {
-    const [row] = await this.db
-      .select({ value: max(schema.files.sortOrder) })
-      .from(schema.files)
-      .where(
-        and(
-          eq(schema.files.ownerId, ownerId),
-          folderId === null
-            ? isNull(schema.files.folderId)
-            : eq(schema.files.folderId, folderId),
-          eq(schema.files.isDeleted, false),
-        ),
-      );
-
-    return row?.value ?? -1;
   }
 
   async search(
@@ -88,6 +72,10 @@ export class FileReadRepository {
           folderClause,
         ),
       )
-      .orderBy(asc(schema.files.sortOrder), asc(schema.files.name));
+      .orderBy(
+        asc(schema.files.sortOrder),
+        asc(schema.files.createdAt),
+        asc(schema.files.id),
+      );
   }
 }
