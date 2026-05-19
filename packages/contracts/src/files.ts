@@ -19,6 +19,15 @@ export const fileSchema = z.object({
 
 export type File = z.infer<typeof fileSchema>;
 
+export const fileHistoryEntrySchema = z.object({
+  eventType: z.string(),
+  occurredOn: z.string(),
+  summary: z.string(),
+  payload: z.record(z.string(), z.unknown()),
+});
+
+export type FileHistoryEntry = z.infer<typeof fileHistoryEntrySchema>;
+
 const idParam = z.object({ id: z.uuid() });
 
 export const fileContract = {
@@ -105,4 +114,19 @@ export const fileContract = {
     .route({ method: "DELETE", path: "/files/{id}", successStatus: 204 })
     .input(idParam)
     .output(z.void()),
+
+  move: oc
+    .route({ method: "PATCH", path: "/files/{id}/move", successStatus: 204 })
+    .input(
+      z.object({
+        id: z.uuid(),
+        folderId: z.uuid().nullable(),
+      }),
+    )
+    .output(z.void()),
+
+  getHistory: oc
+    .route({ method: "GET", path: "/files/{id}/history" })
+    .input(idParam)
+    .output(z.array(fileHistoryEntrySchema)),
 };

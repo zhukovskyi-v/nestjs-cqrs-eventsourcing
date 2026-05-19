@@ -23,7 +23,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
           {item.id ? (
             <Link
-              href={`/browse?folder=${item.id}`}
+              href={`/browse/${item.id}`}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {item.name}

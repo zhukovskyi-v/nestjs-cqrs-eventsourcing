@@ -80,7 +80,7 @@ export function FolderCard({
     <div
       ref={setNodeRef}
       style={style}
-      className="group relative flex items-center gap-2 border border-border rounded-lg px-3 py-3 bg-card hover:bg-accent/50 hover:border-primary/30 transition-all cursor-pointer min-w-0"
+      className="group cursor-pointer relative flex items-center gap-2 border border-border rounded-lg px-3 py-3 bg-card hover:bg-accent/50 hover:border-primary/30 transition-all min-w-0"
     >
       {/* Drag handle */}
       <button
@@ -94,11 +94,11 @@ export function FolderCard({
       </button>
 
       <Link
-        href={`/browse?folder=${folder.id}`}
+        href={`/browse/${folder.id}`}
         className="flex items-center gap-2 flex-1 min-w-0"
         aria-label={`Open folder ${folder.name}`}
       >
-        <Folder className="w-5 h-5 text-primary flex-shrink-0" />
+        <Folder className="w-5 h-5 text-primary shrink-0" />
         <span className="text-sm font-medium text-foreground truncate">
           {folder.name}
         </span>
@@ -109,7 +109,7 @@ export function FolderCard({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 opacity-0 group-hover:opacity-100 flex-shrink-0"
+            className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0"
             aria-label="Folder options"
           >
             <MoreHorizontal className="w-4 h-4" />

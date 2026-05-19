@@ -10,27 +10,26 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable";
 import { FolderCard } from "./folder-card";
 import type { Folder } from "@/lib/types";
 import { useFileBrowserStore } from "@/store/file-browser-store";
+import { useSession } from "@/lib/auth/client";
 
 interface FoldersSectionProps {
   folders: Folder[];
-  currentUserId: string;
   searchQuery: string;
   onDragEnd: (event: DragEndEvent) => void;
 }
 
 export const FoldersSection: FC<FoldersSectionProps> = ({
   folders,
-  currentUserId,
   searchQuery,
   onDragEnd,
 }) => {
+  const { data: session } = useSession();
   const { openEditFolder, openFolderPermissions } = useFileBrowserStore();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -58,7 +57,7 @@ export const FoldersSection: FC<FoldersSectionProps> = ({
                 <div key={folder.id} className="w-52">
                   <FolderCard
                     folder={folder}
-                    currentUserId={currentUserId}
+                    currentUserId={session?.user?.id ?? ""}
                     onEdit={openEditFolder}
                     onPermissions={openFolderPermissions}
                   />

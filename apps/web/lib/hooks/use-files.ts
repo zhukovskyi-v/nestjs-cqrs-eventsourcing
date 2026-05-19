@@ -4,6 +4,37 @@ import { orpc } from "@/lib/orpc";
 import type { FileRecord } from "@/lib/types";
 
 const fileListKey = () => orpc.files.find.key();
+const fileDetailKey = (id: string) =>
+  orpc.files.findOne.key({ input: { id } });
+const fileHistoryKey = (id: string) =>
+  orpc.files.getHistory.key({ input: { id } });
+
+function invalidateFileQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  id: string,
+) {
+  queryClient.invalidateQueries({ queryKey: fileListKey() });
+  queryClient.invalidateQueries({ queryKey: fileDetailKey(id) });
+  queryClient.invalidateQueries({ queryKey: fileHistoryKey(id) });
+}
+
+export function useFile(id: string) {
+  return useQuery(
+    orpc.files.findOne.queryOptions({
+      input: { id },
+      staleTime: 30000,
+    }),
+  );
+}
+
+export function useFileHistory(id: string) {
+  return useQuery(
+    orpc.files.getHistory.queryOptions({
+      input: { id },
+      staleTime: 10000,
+    }),
+  );
+}
 
 export function useFiles(folderId: string | null) {
   return useQuery(
@@ -69,8 +100,8 @@ export function useRenameFile() {
         }
         toast.error(error.message || "Failed to rename file");
       },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: fileListKey() });
+      onSettled: (_data, _error, variables) => {
+        invalidateFileQueries(queryClient, variables.id);
       },
     }),
   );
@@ -106,8 +137,8 @@ export function useChangeFileVisibility() {
         }
         toast.error(error.message || "Failed to update file visibility");
       },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: fileListKey() });
+      onSettled: (_data, _error, variables) => {
+        invalidateFileQueries(queryClient, variables.id);
       },
     }),
   );
@@ -142,8 +173,8 @@ export function useDeleteFile() {
       onSuccess: () => {
         toast.success("File deleted successfully");
       },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: fileListKey() });
+      onSettled: (_data, _error, variables) => {
+        invalidateFileQueries(queryClient, variables.id);
       },
     }),
   );
@@ -160,6 +191,24 @@ export function useCloneFile() {
       },
       onError: (error) => {
         toast.error(error.message || "Failed to clone file");
+      },
+    }),
+  );
+}
+
+export function useMoveFile() {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    orpc.files.move.mutationOptions({
+      onSuccess: () => {
+        toast.success("File moved");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to move file");
+      },
+      onSettled: (_data, _error, variables) => {
+        invalidateFileQueries(queryClient, variables.id);
       },
     }),
   );

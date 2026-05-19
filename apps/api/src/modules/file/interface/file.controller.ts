@@ -12,10 +12,15 @@ import type { Auth } from '@/modules/auth/auth';
 import { ChangeFileVisibilityCommand } from '../application/commands/change-file-visibility.command';
 import { CloneFileCommand } from '../application/commands/clone-file.command';
 import { DeleteFileCommand } from '../application/commands/delete-file.command';
+import { MoveFileCommand } from '../application/commands/move-file.command';
 import { RenameFileCommand } from '../application/commands/rename-file.command';
 import { ReorderFilesCommand } from '../application/commands/reorder-files.command';
 import { UploadFileCommand } from '../application/commands/upload-file.command';
 import { GetFileQuery } from '../application/queries/get-file.query';
+import {
+  FileHistoryEntry,
+  GetFileHistoryQuery,
+} from '../application/queries/get-file-history.query';
 import { GetFilesByFolderQuery } from '../application/queries/get-files-by-folder.query';
 import { SearchFilesQuery } from '../application/queries/search-files.query';
 
@@ -131,6 +136,24 @@ export class FileController {
     return implement(fileContract.delete).handler(async ({ input }) => {
       await this.commandBus.execute(
         new DeleteFileCommand(input.id, session.user.id),
+      );
+    });
+  }
+
+  @Implement(fileContract.move)
+  move(@Session() session: Session) {
+    return implement(fileContract.move).handler(async ({ input }) => {
+      await this.commandBus.execute(
+        new MoveFileCommand(input.id, input.folderId, session.user.id),
+      );
+    });
+  }
+
+  @Implement(fileContract.getHistory)
+  getHistory(@Session() session: Session) {
+    return implement(fileContract.getHistory).handler(async ({ input }) => {
+      return this.queryBus.execute<GetFileHistoryQuery, FileHistoryEntry[]>(
+        new GetFileHistoryQuery(input.id, session.user.id),
       );
     });
   }

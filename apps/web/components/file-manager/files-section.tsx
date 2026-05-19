@@ -16,20 +16,20 @@ import {
 import { FileCard } from "./file-card";
 import type { FileRecord } from "@/lib/types";
 import { useFileBrowserStore } from "@/store/file-browser-store";
+import { useSession } from "@/lib/auth/client";
 
 interface FilesSectionProps {
   files: FileRecord[];
-  currentUserId: string;
   searchQuery: string;
   onDragEnd: (event: DragEndEvent) => void;
 }
 
 export const FilesSection: FC<FilesSectionProps> = ({
   files,
-  currentUserId,
   searchQuery,
   onDragEnd,
 }) => {
+  const { data: session } = useSession();
   const { openFilePermissions, openEditFile } = useFileBrowserStore();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -57,7 +57,7 @@ export const FilesSection: FC<FilesSectionProps> = ({
                 <div key={file.id} className="w-60">
                   <FileCard
                     file={file}
-                    currentUserId={currentUserId}
+                    currentUserId={session?.user?.id ?? ""}
                     onPermissions={openFilePermissions}
                     onEdit={openEditFile}
                   />

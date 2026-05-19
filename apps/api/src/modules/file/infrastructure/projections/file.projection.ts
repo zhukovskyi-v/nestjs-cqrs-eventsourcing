@@ -11,6 +11,7 @@ import {
   FileSortOrderChangedEvent,
   FileClonedEvent,
   FileDeletedEvent,
+  FileMovedEvent,
 } from '@/modules/file/domain/events';
 
 type FileEvent =
@@ -19,7 +20,8 @@ type FileEvent =
   | FileVisibilityChangedEvent
   | FileSortOrderChangedEvent
   | FileClonedEvent
-  | FileDeletedEvent;
+  | FileDeletedEvent
+  | FileMovedEvent;
 
 @EventsHandler(
   FileCreatedEvent,
@@ -28,6 +30,7 @@ type FileEvent =
   FileSortOrderChangedEvent,
   FileClonedEvent,
   FileDeletedEvent,
+  FileMovedEvent,
 )
 export class FileProjection implements IEventHandler<FileEvent> {
   constructor(
@@ -92,6 +95,14 @@ export class FileProjection implements IEventHandler<FileEvent> {
       await this.db
         .update(schema.files)
         .set({ sortOrder: event.sortOrder, updatedAt: new Date() })
+        .where(eq(schema.files.id, event.aggregateId));
+      return;
+    }
+
+    if (event instanceof FileMovedEvent) {
+      await this.db
+        .update(schema.files)
+        .set({ folderId: event.newFolderId, updatedAt: new Date() })
         .where(eq(schema.files.id, event.aggregateId));
       return;
     }

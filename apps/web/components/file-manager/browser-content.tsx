@@ -9,15 +9,14 @@ import { FilesSection } from "./files-section";
 import type { FileRecord, Folder } from "@/lib/types";
 import { useFolders, useReorderFolders } from "@/lib/hooks/use-folders";
 import { useFiles, useReorderFiles } from "@/lib/hooks/use-files";
-import { useSearchParams } from "next/navigation";
 
 interface BrowserContentProps {
-  currentUserId: string;
+  currentFolderId: string | null;
 }
 
-export const BrowserContent: FC<BrowserContentProps> = ({ currentUserId }) => {
-  const searchParams = useSearchParams();
-  const currentFolderId = searchParams.get("folder") ?? null;
+export const BrowserContent: FC<BrowserContentProps> = ({
+  currentFolderId,
+}) => {
   const { data: folders = [], isLoading: foldersLoading } =
     useFolders(currentFolderId);
   const { data: files = [], isLoading: filesLoading } =
@@ -105,7 +104,6 @@ export const BrowserContent: FC<BrowserContentProps> = ({ currentUserId }) => {
           {/* Folders Section */}
           <FoldersSection
             folders={filteredFolders}
-            currentUserId={currentUserId}
             searchQuery={searchQuery}
             onDragEnd={handleFolderDragEnd}
           />
@@ -113,7 +111,6 @@ export const BrowserContent: FC<BrowserContentProps> = ({ currentUserId }) => {
           {/* Files Section */}
           <FilesSection
             files={filteredFiles}
-            currentUserId={currentUserId}
             searchQuery={searchQuery}
             onDragEnd={handleFileDragEnd}
           />

@@ -5,6 +5,7 @@ import { FileVisibilityChangedEvent } from '@/modules/file/domain/events';
 import { FileSortOrderChangedEvent } from '@/modules/file/domain/events';
 import { FileClonedEvent } from './events/file-cloned.event';
 import { FileDeletedEvent } from './events/file-deleted.event';
+import { FileMovedEvent } from './events/file-moved.event';
 
 export class FileAggregate extends AggregateRootBase {
   private id: string;
@@ -144,6 +145,12 @@ export class FileAggregate extends AggregateRootBase {
     this.apply(new FileSortOrderChangedEvent(this.id, newSortOrder));
   }
 
+  move(newFolderId: string | null): void {
+    this.ensureNotDeleted();
+    if (this.folderId === newFolderId) return;
+    this.apply(new FileMovedEvent(this.id, newFolderId));
+  }
+
   delete(): void {
     this.ensureNotDeleted();
     this.apply(new FileDeletedEvent(this.id, this.assetId));
@@ -193,6 +200,10 @@ export class FileAggregate extends AggregateRootBase {
 
   private onFileSortOrderChangedEvent(event: FileSortOrderChangedEvent): void {
     this.sortOrder = event.sortOrder;
+  }
+
+  private onFileMovedEvent(event: FileMovedEvent): void {
+    this.folderId = event.newFolderId;
   }
 
   private onFileDeletedEvent(_event: FileDeletedEvent): void {
